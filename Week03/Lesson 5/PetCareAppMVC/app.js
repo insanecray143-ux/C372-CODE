@@ -23,6 +23,7 @@ app.use(require('./routes/indexRoutes'));
 app.use(require('./routes/authRoutes'));
 app.use(require('./routes/adminRoutes'));
 app.use(require('./routes/petRoutes'));
+app.use(require('./routes/paymentRoutes'));
 app.use(require('./routes/journalRoutes'));
 
 // =========================
