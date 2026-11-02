@@ -24,7 +24,7 @@ The feature will NOT:
 - URL: `/payments/prepare/:serviceId`
 - Input: `serviceId`, the ID of the service, given as a path parameter (e.g. `/payments/prepare/1`).
 - No request body, query string or form input is needed.
-- The client does not send a price or amount. Any amount sent by the client is ignored.
+- The client does not send a price or amount as part of the defined request inputs. If an amount is supplied by the client, it is ignored and does not determine the returned amount. The specification does not define where a client-supplied amount could be supplied; see Section 8.
 
 ## 4. Service catalogue
 The mock catalogue is the single source of truth for services and prices.
@@ -47,7 +47,7 @@ When `serviceId` matches a service in the catalogue:
 | --- | --- | --- |
 | `serviceId` | number | The service's ID from the catalogue (e.g. `1`, not `"1"`) |
 | `serviceName` | string | The service's name from the catalogue |
-| `amount` | number | The service's price from the catalogue (e.g. `35`, not `"35.00"`) |
+| `amount` | number | The service's price from the catalogue (e.g. `35`, not `"35.00"`). Whether this represents whole SGD or cents is unresolved; see Section 8. |
 | `currency` | string | Always exactly `"sgd"` (lowercase) |
 | `status` | string | Always exactly `"READY_FOR_PAYMENT"` |
 
@@ -76,10 +76,12 @@ When `serviceId` does not match any service in the catalogue (e.g. `999`):
 - AC2: Given `GET /payments/prepare/2`, the response is `200` with `serviceId` 2, `serviceName` "Pet Grooming" and `amount` 50.
 - AC3: Given `GET /payments/prepare/3`, the response is `200` with `serviceId` 3, `serviceName` "Boarding" and `amount` 80.
 - AC4: Given `GET /payments/prepare/999`, the response is `404` with body exactly `{"error":"Service not found"}`.
-- AC5: Every successful response has exactly 5 fields. `serviceId` and `amount` are numbers, `serviceName`, `currency` and `status` are strings, `currency` is `"sgd"` and `status` is `"READY_FOR_PAYMENT"`.
+- AC5: For each catalogue service ID (1, 2 and 3), the successful response has exactly 5 fields. `serviceId` and `amount` are numbers; `serviceName`, `currency` and `status` are strings; `currency` is `"sgd"` and `status` is `"READY_FOR_PAYMENT"`.
 
 ## 8. Open questions
-- Malformed IDs: what should `/payments/prepare/abc`, `/payments/prepare/1.5`, `/payments/prepare/0` or `/payments/prepare/-1` return? `404` (treated as "not found") or `400` (bad request)? Not yet agreed.
+- Malformed and out-of-catalogue IDs: Does the `404` rule in Section 6 apply to `/payments/prepare/abc`, `/payments/prepare/1.5`, `/payments/prepare/0` and `/payments/prepare/-1`, or should any of these return `400`? If `400` is intended, what should its response body be? Not yet agreed.
 - Access: login is not required for this classroom mock. Should it require `isLoggedIn` in a later version, like the `/pets` routes?
 - Pet link: should the request also include which pet the service is for (e.g. a `petId`)? Not included in this lesson's scope.
-- Amount unit: is `amount` in dollars (35 = S$35.00)? Payment gateways often expect cents (3500). Not yet agreed for when a gateway is added.
+- Client-supplied amount: The request section says a supplied amount is ignored, but does not define where it could be supplied. Is that behavior intended for a body, query string, or another input, or should the specification only state that the server uses the catalogue price?
+- Amount unit: In this response, does `amount: 35` mean 35 SGD or 35 cents? Not yet agreed.
+- Other failures: Are failures beyond an unknown service ID (for example, request or server failures) part of this feature's specification? If so, their status codes and response bodies are not yet defined.
