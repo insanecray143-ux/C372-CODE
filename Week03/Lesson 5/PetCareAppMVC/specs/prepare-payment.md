@@ -54,11 +54,11 @@ When `serviceId` matches a service in the catalogue:
 Example for `GET /payments/prepare/1`:
 ```json
 {
-  "serviceId": 1,
-  "serviceName": "Vaccination",
-  "amount": 35,
-  "currency": "sgd",
-  "status": "READY_FOR_PAYMENT"
+  "serviceId": 1,
+  "serviceName": "Vaccination",
+  "amount": 35,
+  "currency": "sgd",
+  "status": "READY_FOR_PAYMENT"
 }
 ```
 
